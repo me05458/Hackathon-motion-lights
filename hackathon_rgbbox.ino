@@ -95,18 +95,18 @@ void drawCircles(int x, int y, int newr, int newb, int newg)
     mult[2] = -1;
   }
   //magic number = 4
-  int stepr = (((mult[0]*newr)-(boardcol[0]*mult[0]))/4)+1;
-  int stepg = (((mult[1]*newg)-(boardcol[1]*mult[1]))/4)+1;
-  int stepb = (((mult[2]*newb)-(boardcol[2]*mult[2]))/4)+1;
+  int stepr = (((mult[0]*newr)-(boardcol[0]*mult[0]))/4);
+  int stepg = (((mult[1]*newg)-(boardcol[1]*mult[1]))/4);
+  int stepb = (((mult[2]*newb)-(boardcol[2]*mult[2]))/4);
   for(int levels = 1; levels<=4; levels++)
   {
-    int tmpr = boardcol[0]+(mult[0]*stepr*levels);
-    int tmpg = boardcol[0]+(mult[0]*stepg*levels);
-    int tmpb = boardcol[0]+(mult[0]*stepb*levels);
+    int tmpr = boardcol[0]+(mult[0]*stepr*levels)+1;
+    int tmpg = boardcol[0]+(mult[0]*stepg*levels)+1;
+    int tmpb = boardcol[0]+(mult[0]*stepb*levels)+1;
     fix(&tmpr,&tmpg,&tmpb);
-    for(int rad = 0; rad<max(max(x,31-x),max(y,31-y)); rad++)
+    for(int rad = 0; rad<46; rad++)
     {
-      matrix.drawCircle(x,y,rad,matrix.color565((uint8_t)tmpr,(uint8_t)tmpg,(uint8_t)tmpb));
+      matrix.fillCircle(x,y,rad,matrix.color565((uint8_t)tmpr,(uint8_t)tmpg,(uint8_t)tmpb));
       matrix.show();
       delay(100);
     }
