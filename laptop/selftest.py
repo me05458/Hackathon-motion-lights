@@ -226,6 +226,59 @@ def _():
     assert link.distance_cm == 55.5
 
 
+def moved(lm, dx=0.0, dy=0.0, scale=1.0, noise=0.0, rng=None):
+    """The same hand shifted, resized and jittered, like a real hand moving in front of the camera."""
+    out = []
+    for p in lm:
+        jx, jy = (rng.normal(0, noise, 2) if rng is not None else (0, 0))
+        out.append(P(x=0.5 + (p.x - 0.5) * scale + dx + jx, y=0.5 + (p.y - 0.5) * scale + dy + jy))
+    return out
+
+
+@check("ASL features ignore where the hand is and how big it looks")
+def _():
+    import asl
+    hand = fake_hand(index=True, middle=True)
+    a = asl.features(asl.raw_row(hand))
+    b = asl.features(asl.raw_row(moved(hand, dx=0.2, dy=-0.1, scale=0.5)))
+    assert a.shape == (42,)
+    assert np.allclose(a, b), "features changed when the hand moved"
+    c = asl.features(asl.raw_row(fake_hand()))
+    assert not np.allclose(a, c), "different hand shapes gave the same features"
+
+
+@check("ASL: record -> train -> recognise, on fake hands")
+def _():
+    import tempfile
+    import asl
+    import train_asl
+    shapes = {"A": fake_hand(), "B": fake_hand(True, True, True, True),
+              "L": fake_hand(index=True, thumb="side"), "Y": fake_hand(pinky=True, thumb="side")}
+    rng = np.random.default_rng(0)
+    with tempfile.TemporaryDirectory() as tmp:
+        data, model = os.path.join(tmp, "d.csv"), os.path.join(tmp, "m.joblib")
+        rows = []
+        for letter, hand in shapes.items():
+            for _ in range(40):
+                h = moved(hand, rng.uniform(-0.2, 0.2), rng.uniform(-0.2, 0.2),
+                          rng.uniform(0.5, 1.3), noise=0.004, rng=rng)
+                rows.append((letter, asl.raw_row(h)))
+        asl.append_samples(rows, data)
+        acc = train_asl.train(data, model, quiet=True)
+        assert acc >= 0.95, f"test accuracy only {acc:.0%}"
+        clf = asl.ASLClassifier(model, min_confidence=0.6)
+        for letter, hand in shapes.items():
+            got, conf = clf.predict(moved(hand, dx=0.1, scale=0.8))
+            assert got == letter, f"{letter} recognised as {got} ({conf:.0%})"
+        # Not enough data must give a clear message, not a crash.
+        asl.append_samples([("A", asl.raw_row(shapes["A"]))], os.path.join(tmp, "small.csv"))
+        try:
+            train_asl.train(os.path.join(tmp, "small.csv"), model, quiet=True)
+            raise AssertionError("training on 1 sample should refuse")
+        except ValueError:
+            pass
+
+
 @check("MediaPipe hand model loads and runs")
 def _():
     try:

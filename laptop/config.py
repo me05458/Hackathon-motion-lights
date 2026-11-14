@@ -22,6 +22,11 @@ MIN_TRACKING_CONFIDENCE = 0.5
 STABLE_FRAMES = 3           # a new gesture must be seen this many frames in a row before it counts
 SMOOTHING = 0.4             # 0..1, how fast x/y follow the hand (1 = no smoothing)
 
+# --- ASL letters (python main.py --asl) ---
+ASL_DATA_PATH = "asl_data.csv"      # written by record_asl.py
+ASL_MODEL_PATH = "asl_model.joblib" # written by train_asl.py
+ASL_MIN_CONFIDENCE = 0.6            # below this the letter shows as "?"
+
 # --- LED panel (must match the firmware) ---
 PANEL_W = 32
 PANEL_H = 32

@@ -29,6 +29,9 @@ laptop/                    the vision side (Python)
   link.py                  USB serial to the ESP32
   frames.py                what the panel draws (twin of gesture_frames.h)
   board_view.py            on-screen copy of the LED panel
+  asl.py                   ASL letter features + classifier
+  record_asl.py            record ASL examples
+  train_asl.py             train the ASL model
   selftest.py              checks that need no camera or ESP32
 firmware/gesture_led/      the full ESP32 sketch
   gesture_led.ino          panel + ultrasonic + laptop link
@@ -66,7 +69,7 @@ macOS/Linux: `python3 -m venv .venv`, then `source .venv/bin/activate`.
 python selftest.py
 ```
 
-All 13 checks should pass. The first run downloads the 8 MB hand model.
+All 15 checks should pass (1 is skipped on Windows). The first run downloads the 8 MB hand model.
 
 ```bash
 python main.py --no-serial
@@ -83,6 +86,47 @@ python main.py
 
 The port is auto-detected; if it picks the wrong one, use `python main.py --port COM5`.
 Other options: `--camera 1`, `--no-board`.
+
+## ASL letters
+
+You train the letter model yourself on your own hand and camera. In the `laptop` folder,
+with the venv active (scikit-learn is in `requirements.txt`; rerun
+`pip install -r requirements.txt` if you installed before it was added):
+
+1. **Record.** Start with a few letters that look different:
+
+   ```bash
+   python record_asl.py A B L Y
+   ```
+
+   For each letter, make the sign and press SPACE to start recording. While it records,
+   move your hand a little: closer, further, slightly tilted. It saves 200 samples per
+   letter (`--samples` to change), then moves to the next letter. SPACE pauses, `n` skips
+   a letter, `q` quits. Samples are appended to `asl_data.csv`, so you can record more in
+   later sessions, or with other people's hands.
+
+2. **Train.**
+
+   ```bash
+   python train_asl.py
+   ```
+
+   It prints the accuracy on samples it didn't train on, and which letters get mixed up.
+   Record more of those letters and train again. It saves `asl_model.joblib`.
+
+3. **Run.**
+
+   ```bash
+   python main.py --no-serial --asl
+   ```
+
+   The letter shows large in the top-right of the camera window, with the raw guess and
+   confidence under the gesture line. `?` means the model is less than 60% sure
+   (`ASL_MIN_CONFIDENCE` in `config.py`). Gestures still drive the LED board as before.
+
+Add letters a few at a time. Letters that look alike (M, N, T, S) need more samples.
+J and Z involve movement and won't work with this single-frame model.
+`asl_data.csv` and `asl_model.joblib` can be committed so teammates can use them.
 
 ## ESP32
 
