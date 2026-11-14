@@ -14,12 +14,53 @@ void setup() {
 
   
 }
-
 void loop() {
   if(status == PROTOMATTER_OK)
   {
-    matrix.drawCircle(12,10,9, matrix.color565(0,255,0));
-    matrix.show();
+    //matrix.drawCircle(12, 10, 9, matrix.color565(255, 0, 0));
+    //delay(100);
+    for(int i = 16; i<32; i++)
+    {
+      matrix.drawPixel(i,16,matrix.color565(255,255,0));
+      matrix.show();
+      delay(100);
+      matrix.drawPixel(i,16,matrix.color565(0,0,0));
+    }
+    for(int i = 31; i>=0; i--)
+    {
+      matrix.drawPixel(i,16,matrix.color565(0,255,255));
+       matrix.show();
+      delay(100);
+      matrix.drawPixel(i,16,matrix.color565(0,0,0));
+    }
+    for(int i = 1; i<=16; i++)
+    {
+      matrix.drawPixel(i,16,matrix.color565(255,0,255));
+       matrix.show();
+      delay(100);
+      matrix.drawPixel(i,16,matrix.color565(0,0,0));
+    }
+    for(int i = 16; i<32; i++)
+    {
+      matrix.drawPixel(16,i,matrix.color565(0,255,0));
+       matrix.show();
+      delay(100);
+      matrix.drawPixel(16,i,matrix.color565(0,0,0));
+    }
+    for(int i = 31; i>=0; i--)
+    {
+      matrix.drawPixel(16,i,matrix.color565(255,0,0));
+       matrix.show();
+      delay(100);
+      matrix.drawPixel(16,i,matrix.color565(0,0,0));
+    }
+    for(int i = 1; i<=16; i++)
+    {
+      matrix.drawPixel(16,i,matrix.color565(0,0,255));
+       matrix.show();
+      delay(100);
+      matrix.drawPixel(16,i,matrix.color565(0,0,0));
+    }
   }
   else
   {
@@ -42,4 +83,9 @@ void loop() {
     }
     return;
   }
+}
+
+void drawCircles(int x, int y)
+{
+  
 }
