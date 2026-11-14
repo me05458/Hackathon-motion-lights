@@ -1,114 +1,121 @@
 #include <Adafruit_Protomatter.h>
 
-
+const int trig1 = 13;
+const int echo1 = 12;
+const int trig2 = 4;
+const int echo2 = 2;
 uint8_t rgbPins[]  = {16, 17, 18, 19, 27, 14};
 uint8_t addrPins[] = {33, 26, 32, 25};
 uint8_t clockPin   = 21;
 uint8_t latchPin   = 15;
 uint8_t oePin      = 5;
+
+#define SOUND_SPEED 0.034
+
 ProtomatterStatus status;
 Adafruit_Protomatter matrix(32, 5, 1, rgbPins, 4, addrPins, clockPin, latchPin, oePin, true);
+float initdist[] = {0.0,0.0};
+long duration[] = {0,0};
+float dist[] = {0.0,0.0};
+int start = 1;
 void setup() {
   Serial.begin(115200);
   status = matrix.begin();
+  pinMode(trig1, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echo2, INPUT); // Sets the echoPin as an Input
+  pinMode(trig2, OUTPUT); // Sets the trigPin as an Output
+  pinMode(echo1, INPUT); // Sets the echoPin as an Input
   if(status!= PROTOMATTER_OK)
   {
     for(;;); //catastrophic faliure oh no
   }
+
   
+
 }
-uint8_t boardcol[] = {0,0,0};
+uint8_t col[] = {100,0,0};
+int rad = 10;
 int pos[] = {16,16};
+
 void loop() {
+  if(start == 1)
+  {
+    matrix.setCursor(2,2);
+  matrix.setTextColor(matrix.color565(255,255,255));
+  matrix.setTextSize(1);
+  matrix.setTextWrap(true);
+  matrix.print("CONFIG IN 4 SEC");
+  matrix.show();
+  delay(4000);
 
-  drawCircles(16,16,255,0,0);
-  drawCircles(0,0,0,0,255);
-  drawCircles(20,20,0,255,0);
+  digitalWrite(trig1, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig1, LOW);
+  duration[0] = pulseIn(echo1, HIGH);
+  initdist[0] = duration[0] * SOUND_SPEED/2;
 
-    /*for(int i = 0; i<32;i++)
-    {
-      for(int j = 0; j<32; j++)
-      {
-        matrix.drawPixel(i,j,matrix.color565(7*(uint8_t)i,7*(uint8_t)j,255));
-      }
-    }
-    matrix.show();*/
+  digitalWrite(trig2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig2, LOW);
+  duration[1] = pulseIn(echo2, HIGH);
+  initdist[1] = duration[1] * SOUND_SPEED/2;
+
+  matrix.fillScreen(matrix.color565(0,0,0));
+  matrix.setCursor(2,2);
+  matrix.setTextColor(matrix.color565(255,255,255));
+  matrix.setTextSize(1);
+  matrix.setTextWrap(true);
+  matrix.print("DONE");
+  matrix.show();
+  Serial.println("---");
+  Serial.println(initdist[0]);
+  Serial.println(initdist[1]);
+  Serial.println("---");
+  delay(1000);
+  start = 0;
+  }
+  digitalWrite(trig1, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig1, LOW);
+  duration[0] = pulseIn(echo1, HIGH);
+  dist[0] = duration[0] * SOUND_SPEED/2;
+  digitalWrite(trig2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig2, LOW);
+  duration[1] = pulseIn(echo2, HIGH);
+  dist[1] = duration[1] * SOUND_SPEED/2;
+  Serial.print(dist[0]);
+  Serial.print(" | ");
+  Serial.print(dist[1]);
+  Serial.print(" -------------- ");
+  Serial.print((dist[0] - initdist[0]));
+  Serial.print(" | ");
+  Serial.println((dist[1] - initdist[1]));
+
+  rad = 10+(dist[0] - initdist[0]);
+  if(dist[1] - initdist[1] >= 0)
+  {
+    col[2] = (dist[1] - initdist[1])*10;
+  }
+  else
+  {
+    col[1] = (initdist[1] - dist[1])*10;
+  }
+
+  matrix.fillCircle(16,16,rad,matrix.color565(col[0],col[1],col[2]));
+  matrix.show();
+
+  delay(100);
+  matrix.fillScreen(matrix.color565(0,0,0));
+
 
 }
 
-void fix(int* r, int* g, int* b)
-{
-  /*if(&r<0)
-  {
-    r = 0;
-  }
-  if(&r>255)
-  {
-    r = 255;
-  }
-  if(&g<0)
-  {
-    g = 0;
-  }
-  if(g>255)
-  {
-    g = 255;
-  }
-  if(b<0)
-  {
-    b = 0;
-  }
-  if(b>255)
-  {
-    b = 255;
-  }*/
-}
-
-int max(int a, int b)
-{
-  if(a > b)
-  {
-    return a;
-  }
-  return b;
-}
-
-void drawCircles(int x, int y, int newr, int newb, int newg)
-{
-  if(x < 0 || y < 0 || x >=32 || y >=32)
-  {
-    Serial.println("invalid x,y");
-    return;
-  }
-  fix(&newr,&newb,&newg);
-  int mult[] = {1,1,1};
-  if(boardcol[0] > newr)
-  {
-    mult[0] = -1;
-  }
-  if(boardcol[1] > newg)
-  {
-    mult[1] = -1;
-  }
-  if(boardcol[2] > newb)
-  {
-    mult[2] = -1;
-  }
-  //magic number = 4
-  int stepr = (((mult[0]*newr)-(boardcol[0]*mult[0]))/4);
-  int stepg = (((mult[1]*newg)-(boardcol[1]*mult[1]))/4);
-  int stepb = (((mult[2]*newb)-(boardcol[2]*mult[2]))/4);
-  for(int levels = 1; levels<=4; levels++)
-  {
-    int tmpr = boardcol[0]+(mult[0]*stepr*levels)+1;
-    int tmpg = boardcol[0]+(mult[0]*stepg*levels)+1;
-    int tmpb = boardcol[0]+(mult[0]*stepb*levels)+1;
-    fix(&tmpr,&tmpg,&tmpb);
-    for(int rad = 0; rad<46; rad++)
-    {
-      matrix.fillCircle(x,y,rad,matrix.color565((uint8_t)tmpr,(uint8_t)tmpg,(uint8_t)tmpb));
-      matrix.show();
-      delay(100);
-    }
-  }
-}
