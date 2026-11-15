@@ -2,24 +2,7 @@
 
 Draw on a 32x32 RGB LED panel by moving your finger in the air.
 
-Camera-only air drawing has a "Midas touch" problem: the camera can't tell when you
-mean to draw and when you're just moving your hand, so you end up pinching or posing
-to lift the pen, and it glitches. Here the two jobs are split between two sensors:
-
-- **The camera** says *where* your fingertip is.
-- **The ultrasonic sensor** says *whether the pen is touching*: push your hand towards
-  it to draw, pull back to stop.
-
-```
-webcam ──> laptop (Python): fingertip + pen state -> picture ──plain text──> ESP32 -> LED panel
-                     ^───────────── "D 23.4" distance, 20-40 times a second ───────┘ (ultrasonic)
-```
-
-The laptop does all the thinking. The ESP32 only paints the LEDs it's told to and
-reports the distance. **[PROTOCOL.md](PROTOCOL.md) is the full description for whoever
-writes the ESP32 sketch.**
-
-## Laptop setup (Windows)
+## Setup (Windows!!)
 
 Use Python 3.11, 3.12 or 3.13 (3.12 recommended). In the `laptop` folder, once:
 
@@ -38,34 +21,11 @@ pip install -r requirements.txt
 Every time after that, only `.venv\Scripts\activate` is needed before running.
 macOS/Linux: `python3 -m venv .venv`, then `source .venv/bin/activate`.
 
-Check the install (no camera or ESP32 needed):
+## Run(easy)
 
 ```bash
-python selftest.py
+python test.py 
 ```
-
-All 24 checks should pass (1 is skipped on Windows).
-
-## Run
-
-Without the ESP32, to try everything on screen:
-
-```bash
-python main.py --no-serial
-```
-
-With no sensor connected, the number keys fake it: **1** = pen down, **2** = hover,
-**3** = idle. Start with 2, move your finger inside the box, then press 1 to draw.
-
-With the ESP32 plugged in (close the Arduino Serial Monitor first):
-
-```bash
-python main.py
-```
-
-Useful options: `--camera 1` (an external webcam such as a Logitech is usually 1),
-`--port COM5`, `--pen gesture` (no sensor at all: pointing draws, any other hand shape
-hovers).
 
 **What you see in the camera window:**
 
