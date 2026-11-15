@@ -21,14 +21,12 @@ letter_filt = GestureFilter(config.STABLE_FRAMES)
 last = None
 last_color = None
 
-
+#train
+train_asl.train(data_path="asl.csv", model_path="aslmodel.joblib")
+asl_model = asl.ASLClassifier(path="aslmodel.joblib")
 
 
 while True:
-    #train
-    train_asl.train(data_path="asl.csv", model_path="aslmodel.joblib")
-    asl_model = asl.ASLClassifier(path="aslmodel.joblib")
-    
     
     ok, frame = camera.read_frame(cap)
     if not ok:
@@ -55,7 +53,6 @@ while True:
             if letter in ("R", "G", "B", "W", "V", "L", "E", "Y") and letter != last_color: 
                 ser.write(f"COLOR={letter}\n".encode()) # into bytes i guess
                 last_color = letter
-
 
 
     
