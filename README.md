@@ -1,4 +1,4 @@
-# Hackathon motion lights: air drawing with a real pen tip
+# Hackathon motion lights
 
 Draw on a 32x32 RGB LED panel by moving your finger in the air.
 
