@@ -6,12 +6,12 @@ import config
 from tracker import HandTracker
 from gestures import GestureFilter
 
-PORT = "COM5"                      # change to your port
+PORT = "COM5"                      
 
 ser = serial.Serial(PORT, 115200, timeout=0)
 time.sleep(2)                      
 
-cap = camera.open_camera(0)
+cap = camera.open_camera(1)
 tracker = HandTracker()
 filt = GestureFilter(config.STABLE_FRAMES)
 last = None
