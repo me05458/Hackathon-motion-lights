@@ -35,11 +35,11 @@ void setup() {
   
 
 }
-uint8_t col[4][3] = {{3,252,219},{255, 59, 203},{118, 255, 59},{255, 157, 59}};
+uint8_t col[8][3] = {{255,0,0},{0,255,0},{0,0,255},{255,255,255},{255,0,255},{0,255,255},{255,255,0},{0,0,0}};
 int currcol = 2;
 void togglecol()
 {
-  if(currcol == 3)
+  if(currcol == 7)
   {
     currcol = 0;
   }
@@ -68,25 +68,88 @@ void toggledraw()
   }
 }
 int justtoggled = 0;
+int starttmp = 0;
 void loop() {
+  if(starttmp == 0)
+  {
+    matrix.setCursor(1,3);
+    matrix.setTextColor(matrix.color565(4, 255, 0));
+    matrix.setTextSize(1);
+    matrix.setTextWrap(false);
+    matrix.print("HACK");
+    matrix.setCursor(1,12);
+    matrix.setTextColor(matrix.color565(0, 255, 242));
+    matrix.print("UMASS");
+    matrix.setCursor(1,21);
+    matrix.setTextColor(matrix.color565(255, 0, 230));
+    matrix.print("XIV ");
+    matrix.show();
+    delay(7000);
+    //clearBox();
+    for(int i = 0; i<23; i++)
+    {
+      matrix.drawCircle(16,16,i,matrix.color565(0,0,0));
+      matrix.show();
+      delay(100);
+    }
+    clearBox();
+    matrix.show();
+    starttmp = 1;
+
+
+  }
 
   if(Serial.available()){
     String cmd = Serial.readStringUntil('\n');
     cmd.trim();
+    if(cmd != "COLOR=TOGGLE" && justtoggled == 1)
+    {
+      justtoggled = 0;
+    }
     if(cmd == "DRAW=ON") 
     {
       isdrawing = 1;
-      justtoggled = 0;
     }
     else if(cmd == "DRAW=OFF")
     {
       isdrawing = 0;
-      justtoggled = 0;
     }
-    else if(cmd == "DRAW=TOGGLE" && justtoggled == 0)
+    else if(cmd == "COLOR=TOGGLE" && justtoggled == 0)
     {
       togglecol();
       justtoggled = 1;
+    }
+    else if(cmd == "COLOR=R")
+    {
+      currcol = 0;
+    }
+    else if(cmd == "COLOR=G")
+    {
+      currcol = 1;
+    }
+    else if(cmd == "COLOR=B")
+    {
+      currcol = 2;
+    }
+    else if(cmd == "COLOR=W")
+    {
+      currcol = 3;
+    }
+    else if(cmd == "COLOR=V")
+    {
+      currcol = 4;
+    }
+    else if(cmd == "COLOR=L")
+    {
+      currcol = 5;
+    }
+    else if(cmd == "COLOR=Y")
+    {
+      currcol = 6;
+    }
+    else if(cmd == "COLOR=E")
+    {
+      currcol = 7;
     }
   }
   closest[0] = 12;
@@ -138,17 +201,17 @@ void loop() {
 
   if(isdrawing == 0)
   {
-    matrix.fillRect(lastpos[0],lastpos[1],2,2,matrix.color565(0,0,0));
+    matrix.fillRect(lastpos[0],lastpos[1],4,4,matrix.color565(0,0,0));
   }
   else
   {
-    matrix.fillRect(lastpos[0],lastpos[1],2,2,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
+    matrix.fillRect(lastpos[0],lastpos[1],4,4,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
   }
   lastpos[0] = pos[0];
   lastpos[1] = pos[1];
 
-  pos[0] = (int)((31)*((float)(dist[0]-closest[0])/(farthest[0] - closest[0])));
-  pos[1] = (int)(31)*((float)(dist[1]-closest[0])/(farthest[1] - closest[1]));
+  pos[0] = 28-(int)((28)*((float)(dist[0]-closest[0])/(farthest[0] - closest[0])));
+  pos[1] = 28-(int)(28)*((float)(dist[1]-closest[0])/(farthest[1] - closest[1]));
 
   if(lastpos[0] - pos[0] > 10 || pos[0] - lastpos[0] >10)
   {
@@ -164,7 +227,7 @@ void loop() {
   Serial.print(pos[0]);
   Serial.print(" | ");
   Serial.println(pos[1]);
-  matrix.fillRect(pos[0],pos[1],2,2,matrix.color565(col[currcol][0]+10,col[currcol][1]+10,col[currcol][2]+10));
+  matrix.fillRect(pos[0],pos[1],4,4,matrix.color565(col[currcol][0]+10,col[currcol][1]+10,col[currcol][2]+10));
   matrix.show();
 
   delay(100);
