@@ -50,7 +50,7 @@ while True:
         detected_letter, _ = asl_model.predict(lm)    
         if detected_letter != "?":
             letter = letter_filt.update(detected_letter)
-            if letter in ("R", "G", "B", "W", "V", "L", "E", "Y") and letter != last_color: 
+            if letter in ("R", "G", "B", "W", "V", "L", "E", "Y", "V") and letter != last_color: 
                 ser.write(f"COLOR={letter}\n".encode()) # into bytes i guess
                 last_color = letter
 
