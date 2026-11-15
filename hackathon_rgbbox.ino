@@ -33,9 +33,23 @@ void setup() {
   
 
 }
-uint8_t col[] = {3, 252, 219};
+uint8_t col[4][3] = {{3,252,219},{255, 59, 203},{118, 255, 59},{255, 157, 59}};
+int currcol = 1;
+void togglecol()
+{
+  if(currcol = 3)
+  {
+    currcol = 0;
+  }
+  else
+  {
+    currcol++;
+  }
+}
+//uint8_t col[] = {3, 252, 219};
 int rad = 10;
 int pos[] = {16,16};
+int lastpos[] = {16,16};
 float closest[] = {0.0,0.0};
 float farthest[] = {0.0,0.0};
 
@@ -117,10 +131,10 @@ void loop() {
   delay(1000);*/
   start = 0;
   }
-  closest[0] = 2;
-  closest[1] = 2;
-  farthest[0] = 20;
-  farthest[1] = 20;
+  closest[0] = 12;
+  closest[1] = 12;
+  farthest[0] = 40;
+  farthest[1] = 33;
   digitalWrite(trig1, LOW);
   delayMicroseconds(2);
   digitalWrite(trig1, HIGH);
@@ -164,17 +178,21 @@ void loop() {
     dist[1] = closest[1];
   }
 
-  pos[0] = (int)((31)*((float)(dist[0])/(farthest[0] - closest[0])));
-  pos[1] = (int)(31)*((float)(dist[1])/(farthest[1] - closest[1]));
+  matrix.fillCircle(lastpos[0],lastpos[1],2,matrix.color565(0,0,0));
+  lastpos[0] = pos[0];
+  lastpos[1] = pos[1];
+
+  pos[0] = (int)((31)*((float)(dist[0]-closest[0])/(farthest[0] - closest[0])));
+  pos[1] = (int)(31)*((float)(dist[1]-closest[0])/(farthest[1] - closest[1]));
 
   Serial.print(" -------------- ");
   Serial.print(pos[0]);
   Serial.print(" | ");
   Serial.println(pos[1]);
-  matrix.fillCircle(pos[0],pos[1],2,matrix.color565(col[0],col[1],col[2]));
+  matrix.fillCircle(pos[0],pos[1],2,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
   matrix.show();
 
-  delay(100);
+  delay(500);
   matrix.fillScreen(matrix.color565(0,0,0));
 
 
