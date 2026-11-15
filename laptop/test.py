@@ -39,8 +39,6 @@ while True:
     if g != last:
         if g == "OPEN":
             ser.write(b"DRAW=ON\n")     # open hand = start drawing
-        elif g == "FIST":
-            ser.write(b"DRAW=OFF\n")
         elif g == "POINT":
             ser.write(b"COLOR=TOGGLE\n")    # point = change color
         last = g
