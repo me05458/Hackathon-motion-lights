@@ -65,16 +65,17 @@ COMMAND_REPEAT_S = 1.0      # next/prev colour and next brush repeat this often 
 # Any other label you record (for example REST, for your relaxed drawing hand) does nothing,
 # which is useful: it teaches the model what is NOT a command.
 ASL_COMMANDS = {
-    "R": "color:red",
-    "O": "color:orange",
-    "Y": "color:yellow",
-    "G": "color:green",
-    "B": "color:blue",
-    "P": "color:purple",
-    "W": "color:white",
-    "E": "color:eraser",
-    "C": "clear",
-    "L": "next_brush",
+    "R": "red",
+    #"O": "orange",
+    "Y": "yellow",
+    "G": "green",
+    "B": "blue",
+    
+    #"P": "color:purple",
+    "W": "white",
+    "E": "eraser",
+    #"C": "clear",
+    "L": "teal", #question mark
 }
 # Used when no ASL model has been trained yet (or with --commands gesture).
 GESTURE_COMMANDS = {
