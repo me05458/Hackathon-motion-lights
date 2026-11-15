@@ -75,6 +75,7 @@ ASL_COMMANDS = {
     "E": "eraser",
     "C": "clear",
     "L": "teal", 
+    "EMPTY": "empty",
 }
 # Used when no ASL model has been trained yet (or with --commands gesture).
 GESTURE_COMMANDS = {
