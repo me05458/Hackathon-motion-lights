@@ -9,6 +9,7 @@ uint8_t addrPins[] = {33, 26, 32, 25};
 uint8_t clockPin   = 21;
 uint8_t latchPin   = 12;
 uint8_t oePin      = 5;
+const int led = 2;
 
 #define SOUND_SPEED 0.034
 
@@ -24,7 +25,8 @@ void setup() {
   pinMode(trig1, OUTPUT); // Sets the trigPin as an Output
   pinMode(echo2, INPUT); // Sets the echoPin as an Input
   pinMode(trig2, OUTPUT); // Sets the trigPin as an Output
-  pinMode(echo1, INPUT); // Sets the echoPin as an Input
+  pinMode(echo1, INPUT); // Sets the echoPin as an Inpt
+  pinMode(led,OUTPUT);
   if(status!= PROTOMATTER_OK)
   {
     for(;;); //catastrophic faliure oh no
@@ -37,7 +39,7 @@ uint8_t col[4][3] = {{3,252,219},{255, 59, 203},{118, 255, 59},{255, 157, 59}};
 int currcol = 2;
 void togglecol()
 {
-  if(currcol = 3)
+  if(currcol == 3)
   {
     currcol = 0;
   }
@@ -65,8 +67,28 @@ void toggledraw()
     isdrawing = 0;
   }
 }
-
+int justtoggled = 0;
 void loop() {
+
+  if(Serial.available()){
+    String cmd = Serial.readStringUntil('\n');
+    cmd.trim();
+    if(cmd == "DRAW=ON") 
+    {
+      isdrawing = 1;
+      justtoggled = 0;
+    }
+    else if(cmd == "DRAW=OFF")
+    {
+      isdrawing = 0;
+      justtoggled = 0;
+    }
+    else if(cmd == "DRAW=TOGGLE" && justtoggled == 0)
+    {
+      togglecol();
+      justtoggled = 1;
+    }
+  }
   closest[0] = 12;
   closest[1] = 12;
   farthest[0] = 40;
@@ -116,11 +138,11 @@ void loop() {
 
   if(isdrawing == 0)
   {
-    matrix.fillCircle(lastpos[0],lastpos[1],2,matrix.color565(0,0,0));
+    matrix.fillCircle(lastpos[0],lastpos[1],1,matrix.color565(0,0,0));
   }
   else
   {
-    matrix.fillCircle(lastpos[0],lastpos[1],2,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
+    matrix.fillCircle(lastpos[0],lastpos[1],1,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
   }
   lastpos[0] = pos[0];
   lastpos[1] = pos[1];
@@ -137,7 +159,6 @@ void loop() {
     pos[1] = lastpos[1];
   }
 
-  togglecol();
 
   Serial.print(" -------------- ");
   Serial.print(pos[0]);
@@ -156,4 +177,3 @@ void clearBox()
 {
   matrix.fillScreen(matrix.color565(0,0,0));
 }
-
