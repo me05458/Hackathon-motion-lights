@@ -1,14 +1,14 @@
-"""All tunable settings in one place. Change values here, not in the other files."""
+#All tunable settings in one place.
 
 # --- Serial link to the ESP32 ---
-SERIAL_PORT = None          # None = auto-detect. Or set e.g. "COM5" (Windows) / "/dev/ttyUSB0" (Linux)
+SERIAL_PORT = None          # None = auto-detect. "COM5" (Windows) 
 BAUD = 115200               # must match Serial.begin(...) in the ESP32 sketch
 
 # --- Camera ---
-CAMERA_INDEX = 0            # an external (Logitech) camera is usually 1; or use --camera 1
+CAMERA_INDEX = 1            
 CAMERA_WIDTH = 640
 CAMERA_HEIGHT = 480
-CAMERA_FPS = 0              # 0 = leave the camera's default. Try 60 if your camera supports it.
+CAMERA_FPS = 0              # 0 = leave the camera's default. 60?
 MIRROR = True               # flip the image so moving your hand right moves the cursor right
 
 # --- Hand tracking ---
@@ -70,12 +70,11 @@ ASL_COMMANDS = {
     "Y": "yellow",
     "G": "green",
     "B": "blue",
-    
-    #"P": "color:purple",
+    "V": "violet",
     "W": "white",
     "E": "eraser",
-    #"C": "clear",
-    "L": "teal", #question mark
+    "C": "clear",
+    "L": "teal", 
 }
 # Used when no ASL model has been trained yet (or with --commands gesture).
 GESTURE_COMMANDS = {
@@ -85,8 +84,8 @@ GESTURE_COMMANDS = {
 }
 
 # --- ASL model files ---
-ASL_DATA_PATH = "asl_data.csv"      # written by record_asl.py
-ASL_MODEL_PATH = "asl_model.joblib" # written by train_asl.py
+ASL_DATA_PATH = "asl.csv"      # written by record_asl.py
+ASL_MODEL_PATH = "aslmodel.joblib" # written by train_asl.py
 ASL_MIN_CONFIDENCE = 0.6            # below this the letter shows as "?"
 
 # --- LED panel ---
