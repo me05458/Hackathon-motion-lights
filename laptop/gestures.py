@@ -55,7 +55,7 @@ class GestureFilter:
     """Only accepts a new gesture (or ASL letter) after it's been seen `stable_frames`
     times in a row. Stops one odd camera frame from counting as a sign."""
 
-    def __init__(self, stable_frames=3, start="NONE"):
+    def __init__(self, stable_frames=0, start="NONE"):
         self.stable_frames = stable_frames
         self.current = start
         self._candidate = start
