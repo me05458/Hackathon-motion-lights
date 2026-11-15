@@ -3,6 +3,9 @@ import cv2
 import serial
 import camera
 import config
+import asl
+import train_asl
+
 from tracker import HandTracker
 from gestures import GestureFilter
 
@@ -17,6 +20,10 @@ filt = GestureFilter(config.STABLE_FRAMES)
 last = None
 
 while True:
+    #train
+    train_asl.train(data_path="asl_rgb_data.csv", model_path="asl_rgb_model.joblib")
+    asl_model = asl.ASLClassifier(path="asl_rgb_model.joblib")
+    
     ok, frame = camera.read_frame(cap)
     if not ok:
         break
