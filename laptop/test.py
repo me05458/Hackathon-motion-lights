@@ -19,10 +19,21 @@ tracker = HandTracker()
 filt = GestureFilter(config.STABLE_FRAMES)
 last = None
 
+
+
+
 while True:
     #train
-    train_asl.train(data_path="asl_rgb_data.csv", model_path="asl_rgb_model.joblib")
-    asl_model = asl.ASLClassifier(path="asl_rgb_model.joblib")
+    train_asl.train(data_path="asl.csv", model_path="aslmodel.joblib")
+    asl_model = asl.ASLClassifier(path="aslmodel.joblib")
+    
+    if lm is not None and g not in ("OPEN", "FIST"):
+        detected_letter, _ = asl_model.predict(lm)    
+        if detected_letter != "?":
+            letter = letter_filt.update(detected_letter)
+            if letter in ("R", "G", "B", "W", "V", "L") and letter != last_color:
+                ser.write(f"COLOR={letter}\n".encode())
+                last_color = letter
     
     ok, frame = camera.read_frame(cap)
     if not ok:
