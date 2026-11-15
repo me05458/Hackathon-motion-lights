@@ -10,15 +10,6 @@ to lift the pen, and it glitches. Here the two jobs are split between two sensor
 - **The ultrasonic sensor** says *whether the pen is touching*: push your hand towards
   it to draw, pull back to stop.
 
-| Hand distance from the sensor | Pen | On the panel |
-|---|---|---|
-| closer than 15 cm | **down** | ink follows your fingertip |
-| 15 to 40 cm | **hover** | one blinking LED shows where you are; no ink |
-| further than 40 cm, or no hand | **idle** | nothing |
-
-Ink needs both sensors to agree: the ultrasonic sensor must say "down" *and* the camera
-must see a hand inside the drawing box.
-
 ```
 webcam ──> laptop (Python): fingertip + pen state -> picture ──plain text──> ESP32 -> LED panel
                      ^───────────── "D 23.4" distance, 20-40 times a second ───────┘ (ultrasonic)
