@@ -33,18 +33,20 @@ void setup() {
   
 
 }
-uint8_t col[] = {100,0,0};
+uint8_t col[] = {3, 252, 219};
 int rad = 10;
 int pos[] = {16,16};
+float closest[] = {0.0,0.0};
+float farthest[] = {0.0,0.0};
 
 void loop() {
   if(start == 1)
   {
-    matrix.setCursor(2,2);
+    /*matrix.setCursor(2,2);
   matrix.setTextColor(matrix.color565(255,255,255));
   matrix.setTextSize(1);
   matrix.setTextWrap(true);
-  matrix.print("CONFIG IN 4 SEC");
+  matrix.print("CONFIG CLOSE 4S");
   matrix.show();
   delay(4000);
 
@@ -54,7 +56,7 @@ void loop() {
   delayMicroseconds(10);
   digitalWrite(trig1, LOW);
   duration[0] = pulseIn(echo1, HIGH);
-  initdist[0] = duration[0] * SOUND_SPEED/2;
+  closest[0] = duration[0] * SOUND_SPEED/2;
 
   digitalWrite(trig2, LOW);
   delayMicroseconds(2);
@@ -62,7 +64,7 @@ void loop() {
   delayMicroseconds(10);
   digitalWrite(trig2, LOW);
   duration[1] = pulseIn(echo2, HIGH);
-  initdist[1] = duration[1] * SOUND_SPEED/2;
+  closest[1] = duration[1] * SOUND_SPEED/2;
 
   matrix.fillScreen(matrix.color565(0,0,0));
   matrix.setCursor(2,2);
@@ -76,8 +78,49 @@ void loop() {
   Serial.println(initdist[1]);
   Serial.println("---");
   delay(1000);
+
+  matrix.setCursor(2,2);
+  matrix.setTextColor(matrix.color565(255,255,255));
+  matrix.setTextSize(1);
+  matrix.setTextWrap(true);
+  matrix.print("CONFIG FAR 4S");
+  matrix.show();
+  delay(4000);
+
+  digitalWrite(trig1, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig1, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig1, LOW);
+  duration[0] = pulseIn(echo1, HIGH);
+  closest[0] = duration[0] * SOUND_SPEED/2;
+
+  digitalWrite(trig2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig2, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trig2, LOW);
+  duration[1] = pulseIn(echo2, HIGH);
+  closest[1] = duration[1] * SOUND_SPEED/2;
+
+  matrix.fillScreen(matrix.color565(0,0,0));
+  matrix.setCursor(2,2);
+  matrix.setTextColor(matrix.color565(255,255,255));
+  matrix.setTextSize(1);
+  matrix.setTextWrap(true);
+  matrix.print("DONE");
+  matrix.show();
+  Serial.println("---");
+  Serial.println(initdist[0]);
+  Serial.println(initdist[1]);
+  Serial.println("---");
+  delay(1000);*/
   start = 0;
   }
+  closest[0] = 2;
+  closest[1] = 2;
+  farthest[0] = 20;
+  farthest[1] = 20;
   digitalWrite(trig1, LOW);
   delayMicroseconds(2);
   digitalWrite(trig1, HIGH);
@@ -96,21 +139,39 @@ void loop() {
   Serial.print(" | ");
   Serial.print(dist[1]);
   Serial.print(" -------------- ");
-  Serial.print((dist[0] - initdist[0]));
+  Serial.print(farthest[0]);
+  Serial.print(",");
+  Serial.print(farthest[1]);
   Serial.print(" | ");
-  Serial.println((dist[1] - initdist[1]));
+  Serial.print(closest[0]);
+  Serial.print(",");
+  Serial.print(closest[1]);
 
-  rad = 10+(dist[0] - initdist[0]);
-  if(dist[1] - initdist[1] >= 0)
+  if(dist[0] > farthest[0])
   {
-    col[2] = (dist[1] - initdist[1])*10;
+    dist[0] = farthest[0];
   }
-  else
+  if(dist[0] < closest[0])
   {
-    col[1] = (initdist[1] - dist[1])*10;
+    dist[0] = closest[0];
+  }
+  if(dist[1] > farthest[1])
+  {
+    dist[1] = farthest[1];
+  }
+  if(dist[1] < closest[1])
+  {
+    dist[1] = closest[1];
   }
 
-  matrix.fillCircle(16,16,rad,matrix.color565(col[0],col[1],col[2]));
+  pos[0] = (int)((31)*((float)(dist[0])/(farthest[0] - closest[0])));
+  pos[1] = (int)(31)*((float)(dist[1])/(farthest[1] - closest[1]));
+
+  Serial.print(" -------------- ");
+  Serial.print(pos[0]);
+  Serial.print(" | ");
+  Serial.println(pos[1]);
+  matrix.fillCircle(pos[0],pos[1],2,matrix.color565(col[0],col[1],col[2]));
   matrix.show();
 
   delay(100);
