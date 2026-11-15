@@ -138,11 +138,11 @@ void loop() {
 
   if(isdrawing == 0)
   {
-    matrix.fillCircle(lastpos[0],lastpos[1],1,matrix.color565(0,0,0));
+    matrix.fillRect(lastpos[0],lastpos[1],2,2,matrix.color565(0,0,0));
   }
   else
   {
-    matrix.fillCircle(lastpos[0],lastpos[1],1,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
+    matrix.fillRect(lastpos[0],lastpos[1],2,2,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
   }
   lastpos[0] = pos[0];
   lastpos[1] = pos[1];
@@ -164,7 +164,7 @@ void loop() {
   Serial.print(pos[0]);
   Serial.print(" | ");
   Serial.println(pos[1]);
-  matrix.fillCircle(pos[0],pos[1],1,matrix.color565(col[currcol][0]+10,col[currcol][1]+10,col[currcol][2]+10));
+  matrix.fillRect(pos[0],pos[1],2,2,matrix.color565(col[currcol][0]+10,col[currcol][1]+10,col[currcol][2]+10));
   matrix.show();
 
   delay(100);
