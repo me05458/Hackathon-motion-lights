@@ -31,8 +31,8 @@ while True:
         detected_letter, _ = asl_model.predict(lm)    
         if detected_letter != "?":
             letter = letter_filt.update(detected_letter)
-            if letter in ("R", "G", "B", "W", "V", "L") and letter != last_color:
-                ser.write(f"COLOR={letter}\n".encode())
+            if letter in ("R", "G", "B", "W", "V", "L") and letter != last_color: 
+                ser.write(f"COLOR={letter}\n".encode()) # into bytes i guess
                 last_color = letter
     
     ok, frame = camera.read_frame(cap)
