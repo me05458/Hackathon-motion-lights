@@ -24,9 +24,11 @@ while True:
     g = filt.update(raw)
     if g != last:
         if g == "OPEN":
-            ser.write(b"DRAW=ON\n")     # open hand = start drawing
+            ser.write(b"DRAW=ON\n")     # open hand start drawing
         elif g == "FIST":
-            ser.write(b"DRAW=OFF\n")    # fist = end drawing
+            ser.write(b"DRAW=OFF\n") # stop
+        elif g == "POINT":
+            ser.write(b"DRAW=TOGGLE\n")
         last = g
     cv2.imshow("Hand", frame)
     if cv2.waitKey(1) & 0xFF == ord("q"):
