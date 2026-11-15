@@ -34,7 +34,7 @@ void setup() {
 
 }
 uint8_t col[4][3] = {{3,252,219},{255, 59, 203},{118, 255, 59},{255, 157, 59}};
-int currcol = 1;
+int currcol = 2;
 void togglecol()
 {
   if(currcol = 3)
@@ -52,6 +52,19 @@ int pos[] = {16,16};
 int lastpos[] = {16,16};
 float closest[] = {0.0,0.0};
 float farthest[] = {0.0,0.0};
+int isdrawing = 1;
+
+void toggledraw()
+{
+  if(isdrawing == 0)
+  {
+    isdrawing =1;
+  }
+  else
+  {
+    isdrawing = 0;
+  }
+}
 
 void loop() {
   if(start == 1)
@@ -178,23 +191,44 @@ void loop() {
     dist[1] = closest[1];
   }
 
-  matrix.fillCircle(lastpos[0],lastpos[1],2,matrix.color565(0,0,0));
+  if(isdrawing == 0)
+  {
+    matrix.fillCircle(lastpos[0],lastpos[1],2,matrix.color565(0,0,0));
+  }
+  else
+  {
+    matrix.fillCircle(lastpos[0],lastpos[1],2,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
+  }
   lastpos[0] = pos[0];
   lastpos[1] = pos[1];
 
   pos[0] = (int)((31)*((float)(dist[0]-closest[0])/(farthest[0] - closest[0])));
   pos[1] = (int)(31)*((float)(dist[1]-closest[0])/(farthest[1] - closest[1]));
 
+  if(lastpos[0] - pos[0] > 10 || pos[0] - lastpos[0] >10)
+  {
+    pos[0] = lastpos[0];
+  }
+  if(lastpos[1] - pos[1] > 10 || pos[1] - lastpos[1] > 10)
+  {
+    pos[1] = lastpos[1];
+  }
+
   Serial.print(" -------------- ");
   Serial.print(pos[0]);
   Serial.print(" | ");
   Serial.println(pos[1]);
-  matrix.fillCircle(pos[0],pos[1],2,matrix.color565(col[currcol][0],col[currcol][1],col[currcol][2]));
+  matrix.fillCircle(pos[0],pos[1],2,matrix.color565(col[currcol][0]+10,col[currcol][1]+10,col[currcol][2]+10));
   matrix.show();
 
-  delay(500);
+  delay(100);
+  
+
+
+}
+
+void clearBox()
+{
   matrix.fillScreen(matrix.color565(0,0,0));
-
-
 }
 
