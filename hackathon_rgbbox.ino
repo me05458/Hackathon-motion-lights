@@ -1,13 +1,13 @@
 #include <Adafruit_Protomatter.h>
 
-const int trig1 = 13;
-const int echo1 = 12;
-const int trig2 = 4;
-const int echo2 = 2;
-uint8_t rgbPins[]  = {16, 17, 18, 19, 27, 14};
+const int trig1 = 13;//
+const int echo1 = 23;
+const int trig2 = 4;//black
+const int echo2 = 22;//brown
+uint8_t rgbPins[]  = {16, 17, 18, 19, 27, 15};//
 uint8_t addrPins[] = {33, 26, 32, 25};
 uint8_t clockPin   = 21;
-uint8_t latchPin   = 15;
+uint8_t latchPin   = 12;
 uint8_t oePin      = 5;
 
 #define SOUND_SPEED 0.034
@@ -214,11 +214,13 @@ void loop() {
     pos[1] = lastpos[1];
   }
 
+  togglecol();
+
   Serial.print(" -------------- ");
   Serial.print(pos[0]);
   Serial.print(" | ");
   Serial.println(pos[1]);
-  matrix.fillCircle(pos[0],pos[1],2,matrix.color565(col[currcol][0]+10,col[currcol][1]+10,col[currcol][2]+10));
+  matrix.fillCircle(pos[0],pos[1],1,matrix.color565(col[currcol][0]+10,col[currcol][1]+10,col[currcol][2]+10));
   matrix.show();
 
   delay(100);
