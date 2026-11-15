@@ -3,8 +3,8 @@
 Landmarks are MediaPipe's numbering: 0 wrist, 4 thumb tip, 8 index tip, 12 middle tip,
 16 ring tip, 20 pinky tip. Each point needs .x and .y in 0..1 (y grows downwards).
 
-To add a gesture: add its name to protocol.GESTURES, add a rule in classify(),
-and draw it in frames.py + firmware/gesture_led/gesture_frames.h.
+To add a gesture: add a rule in classify(). To make it do something, add it to
+GESTURE_COMMANDS in config.py.
 """
 import math
 
@@ -51,43 +51,21 @@ def classify(lm) -> str:
     return "NONE"
 
 
-def pointer(lm, gesture):
-    """The (x, y) in 0..1 that drives the LED position: fingertip for POINT, palm centre otherwise."""
-    p = lm[8] if gesture == "POINT" else lm[9]
-    return p.x, p.y
-
-
 class GestureFilter:
-    """Only accepts a new gesture after it's been seen `stable_frames` times in a row,
-    and smooths the position. Stops the board flickering between gestures."""
+    """Only accepts a new gesture (or ASL letter) after it's been seen `stable_frames`
+    times in a row. Stops one odd camera frame from counting as a sign."""
 
-    def __init__(self, stable_frames=3, smoothing=0.4):
+    def __init__(self, stable_frames=3, start="NONE"):
         self.stable_frames = stable_frames
-        self.smoothing = smoothing
-        self.current = "NONE"
-        self._candidate = "NONE"
+        self.current = start
+        self._candidate = start
         self._count = 0
-        self.x = self.y = None
 
-    def update(self, gesture, x=None, y=None):
+    def update(self, gesture):
         if gesture == self._candidate:
             self._count += 1
         else:
             self._candidate, self._count = gesture, 1
         if self._count >= self.stable_frames:
             self.current = gesture
-        if x is not None:
-            if self.x is None:
-                self.x, self.y = x, y
-            else:
-                a = self.smoothing
-                self.x += a * (x - self.x)
-                self.y += a * (y - self.y)
         return self.current
-
-
-def to_led(x, y, w=32, h=32):
-    """0..1 coordinates -> integer LED coordinates, clamped to the panel."""
-    lx = min(w - 1, max(0, int(round(x * (w - 1)))))
-    ly = min(h - 1, max(0, int(round(y * (h - 1)))))
-    return lx, ly

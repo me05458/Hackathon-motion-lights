@@ -1,9 +1,10 @@
-"""ASL letter recognition from the 21 hand landmarks.
+"""ASL letter recognition from the 21 hand landmarks. In the drawing app, letters are
+commands (R = red, C = clear, ...): see ASL_COMMANDS in config.py.
 
 Workflow:
-  1. python record_asl.py A B L Y     record examples (appends to asl_data.csv)
-  2. python train_asl.py              train, print accuracy, save asl_model.joblib
-  3. python main.py --no-serial --asl show the recognised letter live
+  1. python record_asl.py R G B C REST   record examples (appends to asl_data.csv)
+  2. python train_asl.py                 train, print accuracy, save asl_model.joblib
+  3. python main.py                      hold a letter still to run its command
 
 features() is used for both training and live recognition, so they always match.
 """
@@ -62,9 +63,24 @@ def make_model():
     return KNeighborsClassifier(n_neighbors=5, weights="distance")
 
 
-def save_model(model, path=config.ASL_MODEL_PATH):
+def neighbour_distance(model, X, skip_self=False):
+    """How far each sample is from its nearest training examples (average of the k
+    nearest). Small = looks like something the model was trained on."""
+    k = model.n_neighbors
+    dists, _ = model.kneighbors(X, n_neighbors=min(k + skip_self, model.n_samples_fit_))
+    return dists[:, int(skip_self):].mean(axis=1)
+
+
+def typical_max_distance(model, X):
+    """A cut-off for "this hand shape is unlike anything I was trained on": twice the
+    distance that 99% of the training samples have to their own neighbours."""
+    return float(np.percentile(neighbour_distance(model, X, skip_self=True), 99) * 2.0)
+
+
+def save_model(model, path=config.ASL_MODEL_PATH, max_distance=None):
     import joblib
-    joblib.dump({"model": model, "feature_version": FEATURE_VERSION}, path)
+    joblib.dump({"model": model, "feature_version": FEATURE_VERSION,
+                 "max_distance": max_distance}, path)
 
 
 class ASLClassifier:
@@ -77,11 +93,17 @@ class ASLClassifier:
         if saved.get("feature_version") != FEATURE_VERSION:
             raise RuntimeError(f"{path} was trained with older features. Run train_asl.py again.")
         self.model = saved["model"]
+        self.max_distance = saved.get("max_distance")    # None for models trained before this existed
         self.min_confidence = min_confidence
+        self.letters = [str(c) for c in self.model.classes_]
 
     def predict(self, lm):
-        """Returns (letter, confidence 0..1). letter is "?" if the model isn't sure."""
-        probs = self.model.predict_proba([features(raw_row(lm))])[0]
+        """Returns (letter, confidence 0..1). letter is "?" if the model isn't sure, or
+        the hand shape isn't like any letter it was trained on."""
+        f = [features(raw_row(lm))]
+        if self.max_distance is not None and neighbour_distance(self.model, f)[0] > self.max_distance:
+            return "?", 0.0
+        probs = self.model.predict_proba(f)[0]
         i = int(np.argmax(probs))
         conf = float(probs[i])
         letter = str(self.model.classes_[i])

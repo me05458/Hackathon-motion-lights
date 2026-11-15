@@ -2,6 +2,7 @@
 
 Reads asl_data.csv, tests on 20% of the samples it didn't train on, prints the accuracy
 per letter and which letters get mixed up, then trains on everything and saves asl_model.joblib.
+It also lists which commands (ASL_COMMANDS in config.py) are ready to use.
 """
 import argparse
 import os
@@ -49,7 +50,18 @@ def train(data_path=config.ASL_DATA_PATH, model_path=config.ASL_MODEL_PATH, quie
 
     model = asl.make_model()                       # final model uses all the data
     model.fit(X, y)
-    asl.save_model(model, model_path)
+    asl.save_model(model, model_path, max_distance=asl.typical_max_distance(model, X))
+
+    # In the drawing app letters are commands: say which ones are ready to use.
+    commands = config.ASL_COMMANDS
+    ready = [f"{k} = {commands[k]}" for k in labels if k in commands]
+    say("\nCommands you can use now: " + (", ".join(ready) if ready else "none yet"))
+    missing = [k for k in commands if k not in counts]
+    if missing:
+        say("Not trained yet (record them to use them): " + " ".join(missing))
+    other = [k for k in labels if k not in commands]
+    if other:
+        say("Trained but with no command (fine, they do nothing): " + " ".join(other))
     say(f"\nSaved {model_path}")
     return acc
 

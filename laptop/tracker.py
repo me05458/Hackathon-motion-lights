@@ -1,7 +1,7 @@
-"""Camera + MediaPipe hand tracking. Gives back (gesture, x, y, landmarks) per frame.
+"""MediaPipe hand tracking. Gives back (gesture, landmarks) for each camera frame.
 
 Swapping the vision model (e.g. an Intel Neural Compute Stick) only means
-replacing this file; everything else just needs a gesture name and x, y.
+replacing this file; everything else just needs the 21 hand points.
 """
 import os
 import time
@@ -41,7 +41,8 @@ class HandTracker:
         self._last_ts = -1
 
     def process(self, frame_bgr):
-        """Returns (raw_gesture, x, y, landmarks) with x, y in 0..1, or ("NONE", None, None, None)."""
+        """Returns (gesture, landmarks). No hand: ("NONE", None).
+        landmarks: 21 points with .x and .y in 0..1 of the picture; number 8 is the index fingertip."""
         rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
         image = mp.Image(image_format=mp.ImageFormat.SRGB, data=rgb)
         ts = int((time.monotonic() - self._t0) * 1000)
@@ -49,11 +50,9 @@ class HandTracker:
         self._last_ts = ts
         result = self.landmarker.detect_for_video(image, ts)
         if not result.hand_landmarks:
-            return "NONE", None, None, None
+            return "NONE", None
         lm = result.hand_landmarks[0]
-        g = gestures.classify(lm)
-        x, y = gestures.pointer(lm, g)
-        return g, x, y, lm
+        return gestures.classify(lm), lm
 
     def close(self):
         self.landmarker.close()
