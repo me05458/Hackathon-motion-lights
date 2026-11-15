@@ -17,7 +17,9 @@ time.sleep(2)
 cap = camera.open_camera(1)
 tracker = HandTracker()
 filt = GestureFilter(config.STABLE_FRAMES)
+letter_filt = GestureFilter(config.STABLE_FRAMES)
 last = None
+last_color = None
 
 
 
